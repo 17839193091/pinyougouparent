@@ -10,6 +10,7 @@ import com.pinyougou.sellergoods.service.SellerService;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -46,6 +47,10 @@ public class SellerServiceImpl implements SellerService {
 	 */
 	@Override
 	public void add(TbSeller seller) {
+		//状态 待审核
+		seller.setStatus("0");
+		//申请日期
+		seller.setCreateTime(new Date());
 		sellerMapper.insert(seller);		
 	}
 
@@ -159,5 +164,18 @@ public class SellerServiceImpl implements SellerService {
 		Page<TbSeller> page= (Page<TbSeller>)sellerMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+    /**
+     * 更新状态
+     *
+     * @param sellerId
+     * @param status
+     */
+    @Override
+    public void updateStatus(String sellerId, String status) {
+        TbSeller seller = sellerMapper.selectByPrimaryKey(sellerId);
+        seller.setStatus(status);
+        sellerMapper.updateByPrimaryKey(seller);
+    }
+
 }

@@ -26,4 +26,19 @@ app.controller('baseController',function ($scope) {
             $scope.selectIds.splice(index,1);   //移除的位置  移除的个数
         }
     }
+
+
+    $scope.jsonToString = function (jsonString,key) {
+
+        var json = JSON.parse(jsonString);
+        var value = "";
+        for (var i = 0; i < json.length ;i++){
+            if(i>0){
+                value += ","
+            }
+            value += json[i][key];
+        }
+        
+        return value;
+    }
 })

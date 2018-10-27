@@ -11,6 +11,7 @@ import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 描述:
@@ -86,5 +87,16 @@ public class BrandServiceImpl implements BrandService {
         Page<TbBrand> tbBrands = (Page<TbBrand>) brandMapper.selectByExample(example);
         return new PageResult(tbBrands.getTotal(),tbBrands.getResult());
     }
+
+    /**
+     * 返回下拉列表数据
+     *
+     * @return
+     */
+    @Override
+    public List<Map> selectOptionList() {
+        return brandMapper.selectOptionList();
+    }
+
 
 }

@@ -5,7 +5,7 @@ app.controller('brandController',function($scope,$controller,brandService){
 
     //查询品牌列表
     $scope.findAll=function(){
-        brandService.findAll.success(
+        brandService.findAll().success(
             function(response){
                 $scope.list=response;
             }
