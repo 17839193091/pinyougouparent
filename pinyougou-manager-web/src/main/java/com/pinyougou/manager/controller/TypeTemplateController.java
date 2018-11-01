@@ -1,15 +1,16 @@
 package com.pinyougou.manager.controller;
-import java.util.List;
 
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.pojo.TbTypeTemplate;
 import com.pinyougou.sellergoods.service.TypeTemplateService;
-
 import entity.PageResult;
 import entity.Result;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 /**
  * controller
  * @author Administrator
@@ -101,7 +102,7 @@ public class TypeTemplateController {
 	
 		/**
 	 * 查询+分页
-	 * @param brand
+	 * @param typeTemplate
 	 * @param page
 	 * @param rows
 	 * @return
@@ -110,5 +111,9 @@ public class TypeTemplateController {
 	public PageResult search(@RequestBody TbTypeTemplate typeTemplate, int page, int rows  ){
 		return typeTemplateService.findPage(typeTemplate, page, rows);		
 	}
-	
+
+    @RequestMapping("/findAllUseToSelect2")
+	public List<Map> findAllUseToSelect2(){
+        return typeTemplateService.findAllUseToSelect2();
+	}
 }

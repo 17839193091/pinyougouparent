@@ -1,6 +1,4 @@
 package com.pinyougou.sellergoods.service.impl;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -9,8 +7,11 @@ import com.pinyougou.pojo.TbTypeTemplate;
 import com.pinyougou.pojo.TbTypeTemplateExample;
 import com.pinyougou.pojo.TbTypeTemplateExample.Criteria;
 import com.pinyougou.sellergoods.service.TypeTemplateService;
-
 import entity.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 服务实现层
@@ -105,5 +106,15 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 		Page<TbTypeTemplate> page= (Page<TbTypeTemplate>)typeTemplateMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+	/**
+	 * 查找所有，用于select2
+	 *
+	 * @return
+	 */
+	@Override
+	public List<Map> findAllUseToSelect2() {
+		return typeTemplateMapper.findAllUseToSelect2();
+	}
+
 }

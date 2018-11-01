@@ -1,5 +1,5 @@
  //控制层 
-app.controller('itemCatController' ,function($scope,$controller   ,itemCatService){	
+app.controller('itemCatController' ,function($scope,$controller,itemCatService,typeTemplateService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -23,7 +23,8 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 	}
 	
 	//查询实体 
-	$scope.findOne=function(id){				
+	$scope.findOne=function(id){
+	    console.log("findOne：entity.id:"+id);
 		itemCatService.findOne(id).success(
 			function(response){
 				$scope.entity= response;					
@@ -37,13 +38,15 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 		if($scope.entity.id!=null){//如果有ID
 			serviceObject=itemCatService.update( $scope.entity ); //修改  
 		}else{
+            //赋予上级Id
+		    $scope.entity.parentId = $scope.parentId;
 			serviceObject=itemCatService.add( $scope.entity  );//增加 
 		}				
 		serviceObject.success(
 			function(response){
 				if(response.success){
 					//重新查询 
-		        	$scope.reloadList();//重新加载
+		        	$scope.findByParentId($scope.parentId);//重新加载
 				}else{
 					alert(response.message);
 				}
@@ -60,7 +63,9 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 				if(response.success){
 					$scope.reloadList();//刷新列表
 					$scope.selectIds=[];
-				}						
+				} else {
+				    alert(response.message);
+                }
 			}		
 		);				
 	}
@@ -76,5 +81,50 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 			}			
 		);
 	}
-    
+
+    //根据上级分类查询商品分类列表
+    $scope.findByParentId = function (parentId) {
+	    $scope.parentId = parentId;
+        itemCatService.findByParentId(parentId).success(
+            function (response) {
+                $scope.list = response;
+            }
+        )
+    }
+
+    //当前级别
+    $scope.grade = 1;
+	$scope.setGrade = function (value) {
+        $scope.grade = value;
+    }
+
+    $scope.selectList = function (p_entity) {
+        if($scope.grade == 1){
+            $scope.entity_1 = null;
+            $scope.entity_2 = null;
+        }
+
+        if($scope.grade == 2){
+            $scope.entity_1 = p_entity;
+            $scope.entity_2 = null;
+        }
+
+        if($scope.grade == 3){
+            $scope.entity_2 = p_entity;
+        }
+
+        $scope.findByParentId(p_entity.id);
+    }
+
+    //上级Id  初始值为0
+    $scope.parentId = 0;
+
+    $scope.typeTemplateList = {};
+	$scope.findAllTypeTemplate = function () {
+        typeTemplateService.findAllUseToSelect().success(
+            function (response) {
+                $scope.typeTemplateList.data = response;
+            }
+        )
+    }
 });	

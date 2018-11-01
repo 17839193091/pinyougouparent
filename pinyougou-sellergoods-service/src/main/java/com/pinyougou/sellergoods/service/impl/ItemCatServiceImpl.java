@@ -73,8 +73,15 @@ public class ItemCatServiceImpl implements ItemCatService {
 	 */
 	@Override
 	public void delete(Long[] ids) {
-		for(Long id:ids){
-			itemCatMapper.deleteByPrimaryKey(id);
+	    TbItemCatExample example = new TbItemCatExample();
+        Criteria criteria = example.createCriteria();
+        for(Long id:ids){
+            criteria.andParentIdEqualTo(id);
+            List<TbItemCat> tbItemCats = itemCatMapper.selectByExample(example);
+            if (tbItemCats != null){
+                throw new RuntimeException("该分类之下有数据，不能进行删除！");
+            }
+            itemCatMapper.deleteByPrimaryKey(id);
 		}		
 	}
 	

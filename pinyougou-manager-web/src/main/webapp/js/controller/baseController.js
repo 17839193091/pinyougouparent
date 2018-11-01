@@ -25,6 +25,7 @@ app.controller('baseController',function ($scope) {
             var index = $scope.selectIds.indexOf(id);
             $scope.selectIds.splice(index,1);   //移除的位置  移除的个数
         }
+        console.log("selectIds:"+$scope.selectIds);
     }
 
 
