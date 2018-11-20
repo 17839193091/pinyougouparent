@@ -64,4 +64,11 @@ public interface TypeTemplateService {
 	 * @return
 	 */
     List<Map> findAllUseToSelect2();
+
+	/**
+	 * 根据模板id查找规格列表
+	 * @param id
+	 * @return
+	 */
+	public List<Map> findSpecList(Long id);
 }
