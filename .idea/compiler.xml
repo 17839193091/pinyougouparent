@@ -12,6 +12,7 @@
         <module name="pinyougoudao" />
         <module name="pinyougoumanagerweb" />
         <module name="pinyougoupojo" />
+        <module name="pinyougouportalweb" />
         <module name="pinyougousellergoodsinterface" />
         <module name="pinyougousellergoodsservice" />
         <module name="pinyougoushopweb" />
