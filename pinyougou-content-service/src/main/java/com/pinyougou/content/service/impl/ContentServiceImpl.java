@@ -106,5 +106,23 @@ public class ContentServiceImpl implements ContentService {
 		Page<TbContent> page= (Page<TbContent>)contentMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+	/**
+	 * 根据广告分类Id查询广告列表
+	 *
+	 * @param categoryId
+	 * @return
+	 */
+	@Override
+	public List<TbContent> findByCategoryId(Long categoryId) {
+        TbContentExample example = new TbContentExample();
+        Criteria criteria = example.createCriteria();
+        //指定条件: 分类Id
+        criteria.andCategoryIdEqualTo(categoryId);
+        //指定条件：有效
+        criteria.andStatusEqualTo("1");
+        //
+        return contentMapper.selectByExample(example);
+	}
+
 }

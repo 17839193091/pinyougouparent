@@ -1,8 +1,8 @@
 package com.pinyougou.content.service;
-import java.util.List;
 import com.pinyougou.pojo.TbContent;
-
 import entity.PageResult;
+
+import java.util.List;
 /**
  * 服务层接口
  * @author Administrator
@@ -57,5 +57,12 @@ public interface ContentService {
 	 * @return
 	 */
 	public PageResult findPage(TbContent content, int pageNum, int pageSize);
+
+    /**
+     * 根据广告分类Id查询广告列表
+     * @param categoryId
+     * @return
+     */
+	public List<TbContent> findByCategoryId(Long categoryId);
 	
 }
