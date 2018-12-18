@@ -12,6 +12,7 @@ import entity.PageResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.List;
 
@@ -23,6 +24,9 @@ import java.util.List;
 @Service
 public class ContentServiceImpl implements ContentService {
     private static final Logger logger = LoggerFactory.getLogger(ContentServiceImpl.class);
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Autowired
     private TbContentMapper contentMapper;
@@ -51,6 +55,8 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public void add(TbContent content) {
         contentMapper.insert(content);
+        //清除原分组缓存
+        redisTemplate.boundHashOps("content").delete(content.getCategoryId());
     }
 
 
@@ -59,7 +65,16 @@ public class ContentServiceImpl implements ContentService {
      */
     @Override
     public void update(TbContent content) {
+        //查询原来的分组Id
+        Long categoryId = contentMapper.selectByPrimaryKey(content.getId()).getCategoryId();
+        //清除原分组缓存
+        redisTemplate.boundHashOps("content").delete(categoryId);
+
         contentMapper.updateByPrimaryKey(content);
+        //清除现分组缓存
+        if (categoryId.longValue() != content.getCategoryId().longValue()){
+            redisTemplate.boundHashOps("content").delete(content.getCategoryId());
+        }
     }
 
     /**
@@ -79,6 +94,9 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public void delete(Long[] ids) {
         for (Long id : ids) {
+            Long categoryId = contentMapper.selectByPrimaryKey(id).getCategoryId();
+            redisTemplate.boundHashOps("content").delete(categoryId);
+            //删除完就查不出来categoryId了
             contentMapper.deleteByPrimaryKey(id);
         }
     }
@@ -119,17 +137,22 @@ public class ContentServiceImpl implements ContentService {
      */
     @Override
     public List<TbContent> findByCategoryId(Long categoryId) {
-        logger.info("categoryId:"+categoryId);
-
-        TbContentExample example = new TbContentExample();
-        Criteria criteria = example.createCriteria();
-        //指定条件: 分类Id
-        criteria.andCategoryIdEqualTo(categoryId);
-        //指定条件：有效
-        criteria.andStatusEqualTo("1");
-        //指定条件：排序
-        example.setOrderByClause("sort_order");
-        return contentMapper.selectByExample(example);
+        List<TbContent> content = (List<TbContent>) redisTemplate.boundHashOps("content").get(categoryId);
+        logger.info("从缓存中获取数据:"+content);
+        if (content == null) {
+            TbContentExample example = new TbContentExample();
+            Criteria criteria = example.createCriteria();
+            //指定条件: 分类Id
+            criteria.andCategoryIdEqualTo(categoryId);
+            //指定条件：有效
+            criteria.andStatusEqualTo("1");
+            //指定条件：排序
+            example.setOrderByClause("sort_order");
+            content = contentMapper.selectByExample(example);
+            redisTemplate.boundHashOps("content").put(categoryId,content);
+            logger.info("从数据库中获取数据:"+content);
+        }
+        return content;
     }
 
 }
