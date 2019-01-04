@@ -1,6 +1,7 @@
 package com.pinyougou.content.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pinyougou.content.service.ContentService;
@@ -12,6 +13,7 @@ import entity.PageResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.List;
@@ -56,7 +58,7 @@ public class ContentServiceImpl implements ContentService {
     public void add(TbContent content) {
         contentMapper.insert(content);
         //清除原分组缓存
-        redisTemplate.boundHashOps("content").delete(content.getCategoryId());
+        redisTemplate.boundHashOps("content").delete(String.valueOf(content.getCategoryId()));
     }
 
 
@@ -68,12 +70,12 @@ public class ContentServiceImpl implements ContentService {
         //查询原来的分组Id
         Long categoryId = contentMapper.selectByPrimaryKey(content.getId()).getCategoryId();
         //清除原分组缓存
-        redisTemplate.boundHashOps("content").delete(categoryId);
+        redisTemplate.boundHashOps("content").delete(String.valueOf(categoryId));
 
         contentMapper.updateByPrimaryKey(content);
         //清除现分组缓存
         if (categoryId.longValue() != content.getCategoryId().longValue()){
-            redisTemplate.boundHashOps("content").delete(content.getCategoryId());
+            redisTemplate.boundHashOps("content").delete(String.valueOf(content.getCategoryId()));
         }
     }
 
@@ -95,7 +97,7 @@ public class ContentServiceImpl implements ContentService {
     public void delete(Long[] ids) {
         for (Long id : ids) {
             Long categoryId = contentMapper.selectByPrimaryKey(id).getCategoryId();
-            redisTemplate.boundHashOps("content").delete(categoryId);
+            redisTemplate.boundHashOps("content").delete(String.valueOf(categoryId));
             //删除完就查不出来categoryId了
             contentMapper.deleteByPrimaryKey(id);
         }
@@ -137,7 +139,11 @@ public class ContentServiceImpl implements ContentService {
      */
     @Override
     public List<TbContent> findByCategoryId(Long categoryId) {
-        List<TbContent> content = (List<TbContent>) redisTemplate.boundHashOps("content").get(categoryId);
+        List<TbContent> content = null;
+        BoundHashOperations contentHashOps = redisTemplate.boundHashOps("content");
+        if (contentHashOps.get(String.valueOf(categoryId)) != null){
+            content = JSON.parseArray(String.valueOf(redisTemplate.boundHashOps("content").get(String.valueOf(categoryId))),TbContent.class);
+        }
         logger.info("从缓存中获取数据:"+content);
         if (content == null) {
             TbContentExample example = new TbContentExample();
@@ -149,7 +155,7 @@ public class ContentServiceImpl implements ContentService {
             //指定条件：排序
             example.setOrderByClause("sort_order");
             content = contentMapper.selectByExample(example);
-            redisTemplate.boundHashOps("content").put(categoryId,content);
+            redisTemplate.boundHashOps("content").put(String.valueOf(categoryId), JSON.toJSONString(content));
             logger.info("从数据库中获取数据:"+content);
         }
         return content;

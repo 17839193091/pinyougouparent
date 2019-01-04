@@ -22,6 +22,9 @@
         <module name="pinyougoucontentservice" />
         <module name="pinyougoudao" />
         <module name="pinyougoumanagerweb" />
+        <module name="pinyougoupageinterface" />
+        <module name="pinyougoupageservice" />
+        <module name="pinyougoupageweb" />
         <module name="pinyougoupojo" />
         <module name="pinyougousearchinterface" />
         <module name="pinyougousearchservice" />

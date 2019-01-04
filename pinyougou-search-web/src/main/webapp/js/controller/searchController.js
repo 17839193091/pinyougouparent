@@ -1,4 +1,4 @@
-app.controller('searchController', function ($scope, searchService) {
+app.controller('searchController', function ($scope, $location, searchService) {
     //定义搜索对象的结构 category商品分类
     $scope.searchMap = {
         'keywords': '',
@@ -8,8 +8,8 @@ app.controller('searchController', function ($scope, searchService) {
         'price': '',
         'pageNo': '1',
         'pageSize': 20,
-        'sort':'',
-        'sortField':''
+        'sort': '',
+        'sortField': ''
     };
 
     $scope.resultMap = {};
@@ -89,7 +89,7 @@ app.controller('searchController', function ($scope, searchService) {
 
     //判断当前页是否为第一页
     $scope.isTopPage = function () {
-        if ($scope.searchMap.pageNo -2 <= 1) {
+        if ($scope.searchMap.pageNo - 2 <= 1) {
             return true;
         }
         return false;
@@ -99,7 +99,7 @@ app.controller('searchController', function ($scope, searchService) {
     $scope.isEndPage = function () {
         //debugger;
         if ('totalPages' in $scope.resultMap) {
-            if (parseInt($scope.searchMap.pageNo)+2 >= $scope.resultMap.totalPages) {
+            if (parseInt($scope.searchMap.pageNo) + 2 >= $scope.resultMap.totalPages) {
                 return true;
             }
         }
@@ -107,9 +107,39 @@ app.controller('searchController', function ($scope, searchService) {
     }
 
     //排序查询
-    $scope.sortSearch = function (sortField,sort) {
+    $scope.sortSearch = function (sortField, sort) {
         $scope.searchMap.sortField = sortField;
         $scope.searchMap.sort = sort;
         $scope.search();
+    }
+
+    //判断关键字是否是品牌
+    $scope.keywordsIsBrand = function () {
+        for (let i = 0; i < $scope.resultMap.brandList.length; i++) {
+            if ($scope.searchMap.keywords.indexOf($scope.resultMap.brandList[i].text) !== -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //判断关键字是否是分类
+    $scope.keywordsIsCategory = function () {
+        if ($scope.resultMap.categoryList != undefined) {
+            for (let i = 0; i < $scope.resultMap.categoryList.length; i++) {
+                if ($scope.searchMap.keywords.indexOf($scope.resultMap.categoryList[i]) !== -1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    //加载关键字
+    $scope.loadkeywords = function () {
+        if ($location.search()['keywords'] != undefined && $location.search()['keywords'] != "") {
+            $scope.searchMap.keywords = $location.search()['keywords'];
+            $scope.search();
+        }
     }
 });

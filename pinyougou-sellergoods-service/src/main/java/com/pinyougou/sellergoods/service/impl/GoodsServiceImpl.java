@@ -13,6 +13,7 @@ import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,8 @@ public class GoodsServiceImpl implements GoodsService {
 	public void add(Goods goods) {
 		//插入商品的基本信息
         TbGoods tbGoods = goods.getGoods();
+		//设置删除状态为未删除
+        tbGoods.setIsDelete("0");
         //状态 未审核
         tbGoods.setAuditStatus("0");
         //插入商品基本信息
@@ -212,8 +215,8 @@ public class GoodsServiceImpl implements GoodsService {
 		
 		TbGoodsExample example=new TbGoodsExample();
 		Criteria criteria = example.createCriteria();
-		//指定条件为未逻辑删除的数据
-		criteria.andIsDeleteIsNull();
+		//指定条件为未逻辑删除的数据	1:已删除 	0：未删除
+		criteria.andIsDeleteNotEqualTo("1");
 		if(goods!=null){			
 		    if(goods.getSellerId()!=null && goods.getSellerId().length()>0){
 				criteria.andSellerIdEqualTo(goods.getSellerId());
@@ -259,6 +262,23 @@ public class GoodsServiceImpl implements GoodsService {
             goods.setAuditStatus(status);
             goodsMapper.updateByPrimaryKey(goods);
         }
+	}
+
+
+	/**
+	 * 根据SPU的ID集合查询SKU的列表
+	 * @param goodsIds
+	 * @param status
+	 * @return
+	 */
+	@Override
+	public List<TbItem> findItemLstByGoodsIdListAndStatus(Long[] goodsIds, String status){
+		TbItemExample tbItemExample = new TbItemExample();
+		TbItemExample.Criteria criteria = tbItemExample.createCriteria();
+		criteria.andStatusEqualTo(status);
+		//指定SPU的ID集合
+		criteria.andGoodsIdIn(Arrays.asList(goodsIds));
+		return itemMapper.selectByExample(tbItemExample);
 	}
 
 }

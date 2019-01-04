@@ -77,6 +77,31 @@ public class ItemSearchServiceImpl implements ItemSearchService {
     }
 
     /**
+     * 批量导入列表
+     *
+     * @param list
+     */
+    @Override
+    public void importList(List list) {
+        solrTemplate.saveBeans(list);
+        solrTemplate.commit();
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param goodsIdList
+     */
+    @Override
+    public void deleteByGoodsIds(List goodsIdList) {
+        Query solrDataQuery = new SimpleQuery("*:*");
+        Criteria criteria = new Criteria("item_goodsid").in(goodsIdList);
+        solrDataQuery.addCriteria(criteria);
+        solrTemplate.delete(solrDataQuery);
+        solrTemplate.commit();
+    }
+
+    /**
      * 分组查询（查询商品分类列表）
      *
      * @return
