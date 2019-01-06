@@ -1,19 +1,25 @@
 package com.pinyougou.manager.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.pinyougou.page.service.ItemPageService;
+import com.alibaba.fastjson.JSON;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojogroup.Goods;
-import com.pinyougou.search.service.ItemSearchService;
 import com.pinyougou.sellergoods.service.GoodsService;
 import entity.PageResult;
 import entity.Result;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
 import java.util.List;
 
 /**
@@ -28,11 +34,30 @@ public class GoodsController {
     @Reference
     private GoodsService goodsService;
 
-    @Reference(timeout = 100000)
-    private ItemSearchService itemSearchService;
+    /*@Reference(timeout = 100000)
+    private ItemSearchService itemSearchService;*/
 
-    @Reference(timeout = 400000)
-    private ItemPageService itemPageService;
+    @Autowired
+    private JmsTemplate jmsTemplate;
+
+    @Autowired
+    @Qualifier("queueSolrDestination")
+    private Destination destination;
+
+    @Autowired
+    @Qualifier("queueSolrDeleteDestination")
+    private Destination destinationDel;
+
+    //@Reference(timeout = 400000)
+    //private ItemPageService itemPageService;
+
+    @Autowired
+    @Qualifier("topicPageDestination")
+    private Destination topicDestination;
+
+    @Autowired
+    @Qualifier("topicPageDeleteDestination")
+    private Destination topicDeleteDestination;
 
     /**
      * 返回全部列表
@@ -90,10 +115,26 @@ public class GoodsController {
      * @return
      */
     @RequestMapping("/delete")
-    public Result delete(Long[] ids) {
+    public Result delete(final Long[] ids) {
         try {
             goodsService.delete(ids);
-            itemSearchService.deleteByGoodsIds(Arrays.asList(ids));
+
+            //itemSearchService.deleteByGoodsIds(Arrays.asList(ids));
+            jmsTemplate.send(destinationDel, new MessageCreator() {
+                @Override
+                public Message createMessage(Session session) throws JMSException {
+                    return session.createObjectMessage(ids);
+                }
+            });
+
+            //删除每个服务器上的商品详情页
+            jmsTemplate.send(topicDeleteDestination, new MessageCreator() {
+                @Override
+                public Message createMessage(Session session) throws JMSException {
+                    return session.createObjectMessage(ids);
+                }
+            });
+
             return new Result(true, "删除成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -120,7 +161,7 @@ public class GoodsController {
      * @param status
      */
     @RequestMapping("/updateStatus")
-    public Result updateStatus(Long[] ids, String status) {
+    public Result updateStatus(final Long[] ids, String status) {
         try {
             goodsService.updateStatus(ids, status);
             //如果商品审核通过
@@ -129,11 +170,26 @@ public class GoodsController {
                 List<TbItem> itemLstByGoodsIdListAndStatus = goodsService.findItemLstByGoodsIdListAndStatus(ids, status);
                 if (itemLstByGoodsIdListAndStatus.size() > 0) {
                     //导入到solr
-                    itemSearchService.importList(itemLstByGoodsIdListAndStatus);
+                    //itemSearchService.importList(itemLstByGoodsIdListAndStatus);
+                    final String itemLstByGoodsIdListAndStatusStr = JSON.toJSONString(itemLstByGoodsIdListAndStatus);
+                    MessageCreator messageCreator = new MessageCreator() {
+                        @Override
+                        public Message createMessage(Session session) throws JMSException {
+                            return session.createTextMessage(itemLstByGoodsIdListAndStatusStr);
+                        }
+                    };
+                    jmsTemplate.send(destination, messageCreator);
+
                     //生成商品详细页
-                    for (Long goodsId : ids){
+                    /*for (Long goodsId : ids){
                         itemPageService.getItemHtml(goodsId);
-                    }
+                    }*/
+                    jmsTemplate.send(topicDestination, new MessageCreator() {
+                        @Override
+                        public Message createMessage(Session session) throws JMSException {
+                            return session.createObjectMessage(ids);
+                        }
+                    });
                 }
             }
 
@@ -142,11 +198,6 @@ public class GoodsController {
             return new Result(false, "失败");
         }
 
-    }
-
-    @RequestMapping("/getHtml")
-    public void genHtml(Long goodsId) {
-        itemPageService.getItemHtml(goodsId);
     }
 
 }

@@ -1,6 +1,5 @@
 package com.pinyougou.page.service.impl;
 
-import com.alibaba.dubbo.config.annotation.Service;
 import com.pinyougou.mapper.TbGoodsDescMapper;
 import com.pinyougou.mapper.TbGoodsMapper;
 import com.pinyougou.mapper.TbItemCatMapper;
@@ -17,8 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -103,6 +104,26 @@ public class ItemPageServiceImpl implements ItemPageService {
             return true;
         } catch (IOException | TemplateException e) {
             logger.error("页面静态化出错",e);
+            return false;
+        }
+    }
+
+    /**
+     * 删除商品详细页
+     *
+     * @param goodsIds
+     * @return
+     */
+    @Override
+    public Boolean deleteItemHtml(Long[] goodsIds) {
+        try {
+            boolean b = false;
+            for (Long goodsId : goodsIds) {
+                b = new File(pageDir + goodsId + ".html").delete();
+            }
+            return b;
+        } catch (Exception e) {
+            logger.error("删除静态网页失败",e);
             return false;
         }
     }

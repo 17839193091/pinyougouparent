@@ -12,5 +12,12 @@ public interface ItemPageService {
      * @param goodsId
      * @return
      */
-    public Boolean getItemHtml(Long goodsId);
+    Boolean getItemHtml(Long goodsId);
+
+    /**
+     * 删除商品详细页
+     * @param goodsIds
+     * @return
+     */
+    Boolean deleteItemHtml(Long[] goodsIds);
 }

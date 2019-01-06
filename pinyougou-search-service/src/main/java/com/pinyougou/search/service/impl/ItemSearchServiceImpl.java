@@ -22,9 +22,6 @@ import java.util.Map;
  *
  * @author hudongfei
  * @create 2018-12-23 22:08
- */
-
-/**
  * timeout 超时时间 毫秒  如果服务端和消费端同时配置了timeout 则以消费端为准
  */
 @Service(timeout = 5000)
