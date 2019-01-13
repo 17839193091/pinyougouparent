@@ -11,6 +11,6 @@
     <dubbo:protocol name="dubbo" port="20886"/>
 	<dubbo:application name="pinyougou-user-service"/>
     <dubbo:registry address="zookeeper://192.168.25.128:2181"/>
-    <dubbo:annotation package="com.pinyougou.user.service.impl" />
+    <dubbo:annotation package="com.pinyougou.cart.service.impl" />
 
 </beans>

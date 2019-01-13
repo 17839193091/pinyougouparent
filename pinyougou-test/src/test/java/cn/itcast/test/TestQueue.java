@@ -4,6 +4,7 @@ import com.pinyougou.spring.mq.QueueProducer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -20,8 +21,11 @@ public class TestQueue {
     @Autowired
     private QueueProducer queueProducer;
 
+    @Autowired
+    private Environment environment;
+
     @Test
-    public void test(){
+    public void test() {
         queueProducer.sendTextMessage("hello MQ111");
     }
 }

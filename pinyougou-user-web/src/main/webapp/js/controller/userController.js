@@ -1,5 +1,5 @@
 //控制层 
-app.controller('userController', function ($scope, $controller, userService) {
+app.controller('userController', function ($scope, userService) {
     $scope.reg = function () {
         if ($scope.password != $scope.entity.password){
             alert("两次输入密码不一致，请重新输入");

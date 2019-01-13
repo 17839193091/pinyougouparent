@@ -6,6 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="casClient_demo1" />
+        <module name="casClient_demo2" />
+        <module name="casClient_demo3" />
         <module name="itcast_sms_service" />
         <module name="pinyougou-common" />
         <module name="pinyougou-content-interface" />
@@ -18,6 +21,9 @@
         <module name="pinyougou-sellergoods-service" />
         <module name="pinyougou-shop-web" />
         <module name="pinyougou-test" />
+        <module name="pinyougoucartinterface" />
+        <module name="pinyougoucartservice" />
+        <module name="pinyougoucartweb" />
         <module name="pinyougoucommon" />
         <module name="pinyougoucontentinterface" />
         <module name="pinyougoucontentservice" />

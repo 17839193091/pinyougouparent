@@ -2,6 +2,11 @@
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/casClient_demo1" />
+    <file type="web" url="file://$PROJECT_DIR$/casClient_demo2" />
+    <file type="web" url="file://$PROJECT_DIR$/casClient_demo3" />
+    <file type="web" url="file://$PROJECT_DIR$/pinyougou-cart-service" />
+    <file type="web" url="file://$PROJECT_DIR$/pinyougou-cart-web" />
     <file type="web" url="file://$PROJECT_DIR$/pinyougou-content-service" />
     <file type="web" url="file://$PROJECT_DIR$/pinyougou-manager-web" />
     <file type="web" url="file://$PROJECT_DIR$/pinyougou-page-service" />
@@ -23,6 +28,9 @@
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/pinyougou-portal-web/pom.xml" />
         <option value="$PROJECT_DIR$/itcast_sms_service/pom.xml" />
+        <option value="$PROJECT_DIR$/casClient_demo1/pom.xml" />
+        <option value="$PROJECT_DIR$/casClient_demo2/pom.xml" />
+        <option value="$PROJECT_DIR$/casClient_demo3/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
