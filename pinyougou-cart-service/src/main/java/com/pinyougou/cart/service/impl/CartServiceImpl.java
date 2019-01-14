@@ -132,6 +132,23 @@ public class CartServiceImpl implements CartService {
     }
 
     /**
+     * 合并购物车
+     *
+     * @param cookieCartList
+     * @param redisCartList
+     * @return
+     */
+    @Override
+    public List<Cart> mergeCartList(List<Cart> cookieCartList, List<Cart> redisCartList) {
+        for (Cart cart : redisCartList) {
+            for (TbOrderItem orderItem : cart.getOrderItemList()) {
+                cookieCartList = addGoodsToCartList(cookieCartList,orderItem.getItemId(),orderItem.getNum());
+            }
+        }
+        return cookieCartList;
+    }
+
+    /**
      * 根据skuID在购物车明细列表中查询购物车明细对象
      * @param orderItemList
      * @param itemId

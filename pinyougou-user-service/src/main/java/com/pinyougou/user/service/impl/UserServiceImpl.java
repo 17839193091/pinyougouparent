@@ -1,14 +1,14 @@
-package com.pinyougou.cart.service.impl;
+package com.pinyougou.user.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.user.service.UserService;
 import com.pinyougou.mapper.TbUserMapper;
 import com.pinyougou.pojo.TbUser;
 import com.pinyougou.pojo.TbUserExample;
 import com.pinyougou.pojo.TbUserExample.Criteria;
-import com.pinyougou.cart.service.UserService;
 import entity.PageResult;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -33,4 +33,12 @@ public interface CartService {
      * @param cartList
      */
     void saveCartListToRedis(String username,List<Cart> cartList);
+
+    /**
+     * 合并购物车
+     * @param cookieCartList
+     * @param redisCartList
+     * @return
+     */
+    List<Cart> mergeCartList(List<Cart> cookieCartList,List<Cart> redisCartList);
 }

@@ -1,16 +1,14 @@
 package com.pinyougou.cart.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.pinyougou.pojo.TbUser;
-import com.pinyougou.user.service.UserService;
+import com.pinyougou.user.service.AddressService;
+import com.pinyougou.pojo.TbAddress;
 import entity.PageResult;
 import entity.Result;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import util.PhoneFormatCheckUtils;
 
 import java.util.List;
 /**
@@ -19,20 +17,19 @@ import java.util.List;
  *
  */
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/address")
+public class AddressController {
 
 	@Reference
-	private UserService userService;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+	private AddressService addressService;
+	
 	/**
 	 * 返回全部列表
 	 * @return
 	 */
 	@RequestMapping("/findAll")
-	public List<TbUser> findAll(){			
-		return userService.findAll();
+	public List<TbAddress> findAll(){			
+		return addressService.findAll();
 	}
 	
 	
@@ -42,21 +39,18 @@ public class UserController {
 	 */
 	@RequestMapping("/findPage")
 	public PageResult  findPage(int page,int rows){			
-		return userService.findPage(page, rows);
+		return addressService.findPage(page, rows);
 	}
 	
 	/**
 	 * 增加
-	 * @param user
+	 * @param address
 	 * @return
 	 */
 	@RequestMapping("/add")
-	public Result add(@RequestBody TbUser user,String smsCode){
-		if (!userService.checkSmsCode(user.getPhone(),smsCode)){
-			return new Result(false, "验证码错误");
-		}
+	public Result add(@RequestBody TbAddress address){
 		try {
-			userService.add(user);
+			addressService.add(address);
 			return new Result(true, "增加成功");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -66,13 +60,13 @@ public class UserController {
 	
 	/**
 	 * 修改
-	 * @param user
+	 * @param address
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody TbUser user){
+	public Result update(@RequestBody TbAddress address){
 		try {
-			userService.update(user);
+			addressService.update(address);
 			return new Result(true, "修改成功");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -86,8 +80,8 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("/findOne")
-	public TbUser findOne(Long id){
-		return userService.findOne(id);		
+	public TbAddress findOne(Long id){
+		return addressService.findOne(id);		
 	}
 	
 	/**
@@ -98,7 +92,7 @@ public class UserController {
 	@RequestMapping("/delete")
 	public Result delete(Long [] ids){
 		try {
-			userService.delete(ids);
+			addressService.delete(ids);
 			return new Result(true, "删除成功"); 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -108,29 +102,20 @@ public class UserController {
 	
 		/**
 	 * 查询+分页
-	 * @param user
+	 * @param address
 	 * @param page
 	 * @param rows
 	 * @return
 	 */
 	@RequestMapping("/search")
-	public PageResult search(@RequestBody TbUser user, int page, int rows  ){
-		return userService.findPage(user, page, rows);		
+	public PageResult search(@RequestBody TbAddress address, int page, int rows  ){
+		return addressService.findPage(address, page, rows);		
 	}
 
-
-	@RequestMapping("/sendCode")
-	public Result sendCode(String phone) {
-		if (!PhoneFormatCheckUtils.isPhoneLegal(phone)){
-			return new Result(false,"请输入正确的手机号!");
-		}
-		try {
-			userService.createSmsCode(phone);
-			return new Result(true,"验证码发送成功!");
-		}catch (Exception e) {
-			LOGGER.error("短信验证码发送失败!",e);
-			return new Result(true,"验证码发送失败!");
-		}
-
+	@RequestMapping("/findListByLoginUser")
+	public List<TbAddress> findListByLoginUser(){
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		return addressService.findListByUserId(username);
 	}
+	
 }
