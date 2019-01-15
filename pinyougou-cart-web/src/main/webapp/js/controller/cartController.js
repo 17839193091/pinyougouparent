@@ -1,4 +1,13 @@
 app.controller('cartController', function ($scope, cartService) {
+
+    $scope.getLoginUser = function() {
+        cartService.getLoginUser().success(
+            function (response) {
+                $scope.username = response.username;
+            }
+        )
+    }
+
     //查询购物车列表
     $scope.findCartList = function () {
         cartService.findCartList().success(
@@ -55,4 +64,26 @@ app.controller('cartController', function ($scope, cartService) {
         $scope.order.paymentType = type;
     }
 
+    //保存订单
+    $scope.submitOrder = function () {
+        $scope.order.receiverAreaName = $scope.address.address;
+        $scope.order.receiverMobile = $scope.address.mobile;
+        $scope.order.receiver = $scope.address.contact;
+
+        cartService.submitOrder($scope.order).success(
+            function (response) {
+                if (response.success) {
+                    if ($scope.order.paymentType == '1') {
+                        //如果是微信支付，跳转到支付页面
+                        location.href = 'pay.html';
+                    } else {
+                        //如果是货到付款，跳转到提示页面
+                        location.href = 'paysuccess.html';
+                    }
+                } else {
+                    alert(response.message);
+                }
+            }
+        )
+    }
 });

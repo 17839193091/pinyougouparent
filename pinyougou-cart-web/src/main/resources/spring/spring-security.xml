@@ -15,6 +15,7 @@
 	<http use-expressions="false" entry-point-ref="casProcessingFilterEntryPoint">
         <!-- 匿名角色,允许匿名访问 IS_AUTHENTICATED_ANONYMOUSLY -->
         <intercept-url pattern="/cart/*.do" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/user/*.do" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 
         <intercept-url pattern="/**" access="ROLE_USER"/>   
         <csrf disabled="true"/>  

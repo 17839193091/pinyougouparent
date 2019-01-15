@@ -13,4 +13,8 @@
     <dubbo:registry address="zookeeper://192.168.25.128:2181"/>
     <dubbo:annotation package="com.pinyougou.order.service.impl" />
 
+	<bean id="idWorker" class="util.IdWorker">
+		<constructor-arg index="0" value="0"/>
+		<constructor-arg index="1" value="0"/>
+	</bean>
 </beans>

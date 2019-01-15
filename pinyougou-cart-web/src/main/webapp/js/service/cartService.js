@@ -1,5 +1,9 @@
 app.service('cartService',function ($http) {
 
+    this.getLoginUser = function () {
+        return $http.get('user/getLoginUser.do');
+    }
+
     //购物车列表
     this.findCartList=function(){
         return $http.get('cart/findCartList.do');
@@ -29,6 +33,11 @@ app.service('cartService',function ($http) {
     //获取当前登录账号的地址
     this.findAddressList = function () {
         return $http.get('address/findListByLoginUser.do');
+    }
+
+    //提交订单
+    this.submitOrder = function (order) {
+        return $http.post('order/add.do',order);
     }
 
 });

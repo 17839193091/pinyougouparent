@@ -4,6 +4,7 @@ import com.pinyougou.order.service.OrderService;
 import com.pinyougou.pojo.TbOrder;
 import entity.PageResult;
 import entity.Result;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,6 +49,10 @@ public class OrderController {
 	@RequestMapping("/add")
 	public Result add(@RequestBody TbOrder order){
 		try {
+			String name = SecurityContextHolder.getContext().getAuthentication().getName();
+			order.setUserId(name);
+			//订单来源 2:PC
+			order.setSourceType("2");
 			orderService.add(order);
 			return new Result(true, "增加成功");
 		} catch (Exception e) {
@@ -100,7 +105,7 @@ public class OrderController {
 	
 		/**
 	 * 查询+分页
-	 * @param brand
+	 * @param order
 	 * @param page
 	 * @param rows
 	 * @return
