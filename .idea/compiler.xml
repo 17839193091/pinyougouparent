@@ -34,10 +34,15 @@
         <module name="pinyougoupageinterface" />
         <module name="pinyougoupageservice" />
         <module name="pinyougoupageweb" />
+        <module name="pinyougoupayinterface" />
+        <module name="pinyougoupayservice" />
         <module name="pinyougoupojo" />
         <module name="pinyougousearchinterface" />
         <module name="pinyougousearchservice" />
         <module name="pinyougousearchweb" />
+        <module name="pinyougouseckillinterface" />
+        <module name="pinyougouseckillservice" />
+        <module name="pinyougouseckillweb" />
         <module name="pinyougousellergoodsinterface" />
         <module name="pinyougousellergoodsservice" />
         <module name="pinyougoushopweb" />

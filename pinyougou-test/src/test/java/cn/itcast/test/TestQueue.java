@@ -26,6 +26,6 @@ public class TestQueue {
 
     @Test
     public void test() {
-        queueProducer.sendTextMessage("hello MQ111");
+        //queueProducer.sendTextMessage("hello MQ111");
     }
 }
