@@ -5,6 +5,8 @@ import com.pinyougou.pojo.TbSeckillOrder;
 import com.pinyougou.seckill.service.SeckillOrderService;
 import entity.PageResult;
 import entity.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/seckillOrder")
 public class SeckillOrderController {
+
+	private Logger logger = LoggerFactory.getLogger(SeckillOrderController.class);
 
 	@Reference
 	private SeckillOrderService seckillOrderService;
@@ -69,7 +73,7 @@ public class SeckillOrderController {
 			seckillOrderService.update(seckillOrder);
 			return new Result(true, "修改成功");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("修改异常",e);
 			return new Result(false, "修改失败");
 		}
 	}	
@@ -118,15 +122,17 @@ public class SeckillOrderController {
 		String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
 		if ("anonymousUser".equals(userId)) {
-			return new Result(false,"请先登录");
+			return new Result(false,"noLogin");
 		}
 
 		try {
 			seckillOrderService.submitOrder(seckillId,userId);
 			return new Result(true,"提交成功");
 		} catch (Exception e) {
-			e.printStackTrace();
-			return new Result(false,"提交异常");
+			logger.error("秒杀订单提交异常",e);
+			return new Result(false,e.getMessage());
 		}
 	}
+
+
 }

@@ -39,9 +39,9 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
 	private RedisTemplate redisTemplate;
 
 	@Autowired
-	@Qualifier("idWorkerCommon")
+	@Qualifier("idWorker")
 	private IdWorker idWorker;
-	
+
 	/**
 	 * 查询全部
 	 */
@@ -55,7 +55,7 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
 	 */
 	@Override
 	public PageResult findPage(int pageNum, int pageSize) {
-		PageHelper.startPage(pageNum, pageSize);		
+		PageHelper.startPage(pageNum, pageSize);
 		Page<TbSeckillOrder> page=   (Page<TbSeckillOrder>) seckillOrderMapper.selectByExample(null);
 		return new PageResult(page.getTotal(), page.getResult());
 	}
@@ -65,18 +65,18 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
 	 */
 	@Override
 	public void add(TbSeckillOrder seckillOrder) {
-		seckillOrderMapper.insert(seckillOrder);		
+		seckillOrderMapper.insert(seckillOrder);
 	}
 
-	
+
 	/**
 	 * 修改
 	 */
 	@Override
 	public void update(TbSeckillOrder seckillOrder){
 		seckillOrderMapper.updateByPrimaryKey(seckillOrder);
-	}	
-	
+	}
+
 	/**
 	 * 根据ID获取实体
 	 * @param id
@@ -94,18 +94,18 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
 	public void delete(Long[] ids) {
 		for(Long id:ids){
 			seckillOrderMapper.deleteByPrimaryKey(id);
-		}		
+		}
 	}
-	
-	
+
+
 		@Override
 	public PageResult findPage(TbSeckillOrder seckillOrder, int pageNum, int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);
-		
+
 		TbSeckillOrderExample example=new TbSeckillOrderExample();
 		Criteria criteria = example.createCriteria();
-		
-		if(seckillOrder!=null){			
+
+		if(seckillOrder!=null){
 						if(seckillOrder.getUserId()!=null && seckillOrder.getUserId().length()>0){
 				criteria.andUserIdLike("%"+seckillOrder.getUserId()+"%");
 			}
@@ -127,10 +127,10 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
 			if(seckillOrder.getTransactionId()!=null && seckillOrder.getTransactionId().length()>0){
 				criteria.andTransactionIdLike("%"+seckillOrder.getTransactionId()+"%");
 			}
-	
+
 		}
-		
-		Page<TbSeckillOrder> page= (Page<TbSeckillOrder>)seckillOrderMapper.selectByExample(example);		
+
+		Page<TbSeckillOrder> page= (Page<TbSeckillOrder>)seckillOrderMapper.selectByExample(example);
 		return new PageResult(page.getTotal(), page.getResult());
 	}
 
@@ -175,6 +175,82 @@ public class SeckillOrderServiceImpl implements SeckillOrderService {
 
 		BoundHashOperations orderHashOps = redisTemplate.boundHashOps("seckillOrder");
 		orderHashOps.put(userId,JSON.toJSONString(seckillOrder));
+	}
+
+	/**
+	 * 从缓存中提取订单
+	 *
+	 * @return
+	 */
+	@Override
+	public TbSeckillOrder searchOrderFromRedisByUserId(String userId) {
+		BoundHashOperations hashOps = redisTemplate.boundHashOps("seckillOrder");
+		String orderStr = String.valueOf(hashOps.get(userId));
+		return coverClass(orderStr,TbSeckillOrder.class);
+	}
+
+	/**
+	 * 保存订单到数据库
+	 *
+	 * @param userId
+	 * @param orderId
+	 * @param transactionId
+	 */
+	@Override
+	public void saveOrderFromRedisToDB(String userId, Long orderId, String transactionId) {
+		//从缓存中获取订单数据
+		TbSeckillOrder seckillOrder = searchOrderFromRedisByUserId(userId);
+
+		if (seckillOrder == null) {
+			throw new RuntimeException("不存在的订单");
+		}
+
+		if (!seckillOrder.getId().equals(orderId)){
+			throw new RuntimeException("订单号不符");
+		}
+		//修改订单实体的属性
+		seckillOrder.setPayTime(new Date());
+		seckillOrder.setStatus("1");	//已支付状态
+		seckillOrder.setTransactionId(transactionId);
+
+		//将订单存入数据库
+		seckillOrderMapper.insert(seckillOrder);
+
+		//清除缓存中的订单
+		redisTemplate.boundHashOps("seckillOrder").delete(userId);
+	}
+
+	/**
+	 * 秒杀删除超时订单
+	 *
+	 * @param userId
+	 * @param orderId
+	 */
+	@Override
+	public void deleteOrderFromRedis(String userId, Long orderId) {
+		//查询出缓存中的订单
+		TbSeckillOrder seckillOrder = searchOrderFromRedisByUserId(userId);
+		if (seckillOrder == null) {
+			return;
+		}
+
+		//删除缓存中的订单
+		redisTemplate.boundHashOps("seckillOrder").delete(userId);
+		//库存回退
+		String seckillGoodsStr = String.valueOf(redisTemplate.boundHashOps("seckillGoods").get(seckillOrder.getSeckillId()));
+		TbSeckillGoods seckillGoods = coverClass(seckillGoodsStr, TbSeckillGoods.class);
+		if (seckillGoods != null) {
+			seckillGoods.setStockCount(seckillGoods.getStockCount()+1);
+			redisTemplate.boundHashOps("seckillGoods").put(seckillOrder.getSeckillId(),JSON.toJSONString(seckillGoods));
+		} else {
+			seckillGoods = new TbSeckillGoods();
+
+			seckillGoods.setId(seckillOrder.getSeckillId());
+			seckillGoods.setSellerId(seckillOrder.getSellerId());
+			//其他属性设置省略。。。。。。。
+			seckillGoods.setStockCount(1);
+			redisTemplate.boundHashOps("seckillGoods").put(seckillOrder.getSeckillId(),JSON.toJSONString(seckillGoods));
+		}
 	}
 
 	private <T> T coverClass(String content,Class<T> clazz){

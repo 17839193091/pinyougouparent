@@ -48,7 +48,12 @@ app.controller('seckillGoodsController',function ($scope,$location,$interval,sec
                     alert("下单成功，请在1分钟内完成支付");
                     location.href="pay.html";
                 }else{
-                    alert(response.message);
+                    if (response.message == "noLogin") {
+                    } else {
+                        alert(response.message);
+                        location.href="http://localhost:9100/cas";
+                    }
+
                 }
             }
         );

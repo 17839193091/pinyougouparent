@@ -15,7 +15,6 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,7 +30,7 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
 
 	@Autowired
 	private RedisTemplate redisTemplate;
-	
+
 	/**
 	 * 查询全部
 	 */
@@ -45,7 +44,7 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
 	 */
 	@Override
 	public PageResult findPage(int pageNum, int pageSize) {
-		PageHelper.startPage(pageNum, pageSize);		
+		PageHelper.startPage(pageNum, pageSize);
 		Page<TbSeckillGoods> page=   (Page<TbSeckillGoods>) seckillGoodsMapper.selectByExample(null);
 		return new PageResult(page.getTotal(), page.getResult());
 	}
@@ -55,18 +54,18 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
 	 */
 	@Override
 	public void add(TbSeckillGoods seckillGoods) {
-		seckillGoodsMapper.insert(seckillGoods);		
+		seckillGoodsMapper.insert(seckillGoods);
 	}
 
-	
+
 	/**
 	 * 修改
 	 */
 	@Override
 	public void update(TbSeckillGoods seckillGoods){
 		seckillGoodsMapper.updateByPrimaryKey(seckillGoods);
-	}	
-	
+	}
+
 	/**
 	 * 根据ID获取实体
 	 * @param id
@@ -84,18 +83,18 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
 	public void delete(Long[] ids) {
 		for(Long id:ids){
 			seckillGoodsMapper.deleteByPrimaryKey(id);
-		}		
+		}
 	}
-	
-	
+
+
 		@Override
 	public PageResult findPage(TbSeckillGoods seckillGoods, int pageNum, int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);
-		
+
 		TbSeckillGoodsExample example=new TbSeckillGoodsExample();
 		Criteria criteria = example.createCriteria();
-		
-		if(seckillGoods!=null){			
+
+		if(seckillGoods!=null){
 						if(seckillGoods.getTitle()!=null && seckillGoods.getTitle().length()>0){
 				criteria.andTitleLike("%"+seckillGoods.getTitle()+"%");
 			}
@@ -111,10 +110,10 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
 			if(seckillGoods.getIntroduction()!=null && seckillGoods.getIntroduction().length()>0){
 				criteria.andIntroductionLike("%"+seckillGoods.getIntroduction()+"%");
 			}
-	
+
 		}
-		
-		Page<TbSeckillGoods> page= (Page<TbSeckillGoods>)seckillGoodsMapper.selectByExample(example);		
+
+		Page<TbSeckillGoods> page= (Page<TbSeckillGoods>)seckillGoodsMapper.selectByExample(example);
 		return new PageResult(page.getTotal(), page.getResult());
 	}
 
@@ -130,22 +129,7 @@ public class SeckillGoodsServiceImpl implements SeckillGoodsService {
 
 		List<TbSeckillGoods> seckillGoodsList = new ArrayList<>();
 		if (seckillGoodsListStr.size() == 0) {
-			TbSeckillGoodsExample example = new TbSeckillGoodsExample();
-			Criteria criteria = example.createCriteria();
-			//必须审核通过的商品
-			criteria.andStatusEqualTo("1");
-			//库存数大于0
-			criteria.andStockCountGreaterThan(0);
-			//时间段
-			criteria.andStartTimeLessThanOrEqualTo(new Date());	//开始日期小于等于当前日期
-			criteria.andEndTimeGreaterThanOrEqualTo(new Date());//截止日期大于等于当前日期
-
-			seckillGoodsList = seckillGoodsMapper.selectByExample(example);
-
-			//将列表数据装入缓存
-			for (TbSeckillGoods tbSeckillGoods : seckillGoodsList) {
-				hashOps.put(tbSeckillGoods.getId().toString(), JSON.toJSONString(tbSeckillGoods));
-			}
+			return null;
 		} else {
 			for (String str : seckillGoodsListStr) {
 				TbSeckillGoods tbSeckillGoods = JSON.parseObject(str, TbSeckillGoods.class);

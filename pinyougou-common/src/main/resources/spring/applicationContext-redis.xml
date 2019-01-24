@@ -13,8 +13,6 @@
             http://www.springframework.org/schema/cache  
             http://www.springframework.org/schema/cache/spring-cache.xsd">
 
-    <context:property-placeholder location="classpath*:properties/*.properties"/>
-
     <!-- redis 相关配置 -->
     <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
         <property name="maxIdle" value="${redis.maxIdle}"/>
@@ -39,11 +37,6 @@
         <property name="hashValueSerializer">
             <bean class="org.springframework.data.redis.serializer.StringRedisSerializer"/>
         </property>
-    </bean>
-    
-    <bean id="idWorkerCommon" class="util.IdWorker">
-        <constructor-arg name="workerId" value="1"/>
-        <constructor-arg name="datacenterId" value="10"/>
     </bean>
 
 </beans>  

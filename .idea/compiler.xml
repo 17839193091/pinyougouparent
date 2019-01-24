@@ -47,6 +47,7 @@
         <module name="pinyougousellergoodsservice" />
         <module name="pinyougoushopweb" />
         <module name="pinyougousolrutil" />
+        <module name="pinyougoutaskservice" />
         <module name="pinyougoutest" />
         <module name="pinyougouuserinterface" />
         <module name="pinyougouuserservice" />
